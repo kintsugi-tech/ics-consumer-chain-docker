@@ -1,0 +1,64 @@
+# --------------------------------------------------------
+# Build 
+# --------------------------------------------------------
+
+FROM golang:1.19.3-alpine3.16 as build
+
+# variables
+ARG GIT_REPO
+ARG GIT_BRANCH
+ARG CHAIN_NAME
+
+ARG APP_DIR=consumer
+ARG CHAIN_BIN=${CHAIN_NAME}d
+ARG CHAIN_DIR=.${CHAIN_BIN}
+ARG CONFIG_DIR=${CHAIN_DIR}/config
+
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
+RUN set -eux
+RUN apk add --no-cache \
+    ca-certificates \
+    build-base \
+    linux-headers
+
+RUN apk add git
+
+RUN git clone $GIT_REPO /$APP_DIR --branch $GIT_BRANCH
+
+WORKDIR /$APP_DIR
+
+RUN LEDGER_ENABLED=false CGO_ENABLED=0 make build
+
+WORKDIR /
+
+RUN ls -la
+
+
+# --------------------------------------------------------
+# Runner
+# --------------------------------------------------------
+
+FROM debian:11
+# variables
+ARG CHAIN_NAME
+
+ARG APP_DIR=consumer
+ARG CHAIN_BIN=${CHAIN_NAME}d
+ARG CHAIN_DIR=.${CHAIN_BIN}
+ARG CONFIG_DIR=${CHAIN_DIR}/config
+ARG USER_NAME=ops
+
+COPY --from=build /$APP_DIR/build/$CHAIN_BIN /bin/$CHAIN_BIN
+
+RUN apt update && apt install bash curl wget jq -y
+
+RUN useradd --system -m -d /$APP_DIR --uid 1000 $USER_NAME
+
+WORKDIR /$APP_DIR
+
+USER $USER_NAME
+
+EXPOSE 26656
+EXPOSE 26657
+EXPOSE 1317

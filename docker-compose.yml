@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  consumer:
+    hostname: consumer
+    build:
+      context: ./chains
+      dockerfile: Dockerfile.consumer
+      args:
+        # - arch=${ARCH:-x86_64}
+        - CHAIN_NAME=strange
+        - GIT_REPO=https://github.com/strangelove-ventures/strange.git
+        - GIT_BRANCH=v0.1.0
+    volumes:
+      - ./chains/data/consumer:/consumer/.consumer/
+      - ./chains/scripts/consumer/setup.sh:/consumer/setup.sh
+      - ./chains/keys:/consumer/keys/
+    healthcheck:
+      test: [ "CMD", "curl", "http://localhost:26657/status" ]
+      interval: 3s
+      timeout: 30s
+      retries: 10
+    entrypoint:
+      - /consumer/setup.sh 
+    ports:
+      - 29657:26657
+      - 29656:26656
+      - 1917:1317
+      - 9990:9090
+      - 9991:9091
