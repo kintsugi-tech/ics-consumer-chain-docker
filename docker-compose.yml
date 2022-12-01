@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 services:
   consumer:
     hostname: consumer
@@ -7,8 +7,8 @@ services:
       dockerfile: Dockerfile.consumer
       args:
         # - arch=${ARCH:-x86_64}
-        - CHAIN_NAME=strange
-        - GIT_REPO=https://github.com/strangelove-ventures/strange.git
+        - CHAIN_BIN=oriond
+        - GIT_REPO=https://github.com/made-in-block/mib-consumer-chain.git
         - GIT_BRANCH=v0.1.0
     volumes:
       - ./chains/data/consumer:/consumer/.consumer/

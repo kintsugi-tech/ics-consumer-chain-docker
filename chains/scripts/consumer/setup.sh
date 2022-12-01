@@ -5,16 +5,18 @@ USER=ops
 APP_DIR=consumer
 NODE_HOME=$HOME/.consumer
 CONFIG_DIR=$NODE_HOME/config
+KEYS_DIR=consumer/keys
+NODE_KEY_FILE=$KEYS_DIR/node_key.json
+PRIV_VAL_KEY_FILE=$KEYS_DIR/priv_validator_key.json
 
 # change this
-CHAIN_BIN=stranged
-CHAIN_ID=strange-1
+CHAIN_BIN=oriond
+CHAIN_ID=mib-orion
 PERSISTENT_PEERS=""
 GENESIS_URL=
-DENOM=ustrange
-NODE_MONIKER=node_moniker
+DENOM=uorion
+NODE_MONIKER=mib
 VALIDATOR_AMOUNT=1000000
-MNEMONIC=""
 
 genesis_init () {
     if [ -n "$GENESIS_URL" ];
@@ -25,31 +27,30 @@ genesis_init () {
             echo "Genesis downloaded!"
         else
             echo -e | "Failed to download genesis from url"
-            echo "Check genesis url or remove it to start from local genesis file."
             exit
         fi;
-    else
-        echo "No remote genesis url provided. Starting from local genesis file"
     fi
 }
 
 chain_init () {
     echo "Initializing home directory ..."
 
-    if [ ! -n "$MNEMONIC" ]
-        then
-            echo -e | "No MNEMONIC provided. Set your validator mnemonic and retry."
-            exit
-        else
-            echo $MNEMONIC | $CHAIN_BIN init -o --chain-id=$CHAIN_ID --home $NODE_HOME --recover $NODE_MONIKER
+    if [ ! -f "$NODE_KEY_FILE" ]; then
+        echo "$NODE_KEY_FILE does not exist."
+        exit
+    fi
+    if [ ! -f "$PRIV_VAL_KEY_FILE" ]; then
+        echo "$PRIV_VAL_KEY_FILE does not exist."
+        exit
     fi
 
-    genesis_init
-
-    # echo "Restoring keys files..."
-    # cp /$APP_DIR/keys/priv_validator_key.json $NODE_HOME/config/priv_validator_key.json
-    # cp /$APP_DIR/keys/node_key.json $NODE_HOME/config/node_key.json
+    echo "Restoring keys files..."
+    cp $NODE_KEY_FILE $NODE_HOME/config/priv_validator_key.json
+    cp $PRIV_VAL_KEY_FILE $NODE_HOME/config/node_key.json
     
+    echo | $CHAIN_BIN init -o --chain-id=$CHAIN_ID --home $NODE_HOME $NODE_MONIKER
+
+    genesis_init
 }
 
 if [ ! -d $CONFIG_DIR ]
