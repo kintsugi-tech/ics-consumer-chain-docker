@@ -5,16 +5,11 @@ build:
 	docker-compose build
 
 start:
-	@if ! [ -d ./chains/data/consumer ]; \
-		then mkdir ./chains/data/consumer ; \
-	fi
-	@if ! [ -d ./chains/data/hermes ]; \
-		then mkdir ./chains/data/hermes ; \
-	fi
+	# mkdir ./chains/data/consumer
 	env UID=${CURRENT_UID} GID=${CURRENT_GID} docker-compose up
 
 silent:
-	docker-compose up -d
+	env UID=${CURRENT_UID} GID=${CURRENT_GID} docker-compose up -d
 
 stop:
 	docker-compose stop
