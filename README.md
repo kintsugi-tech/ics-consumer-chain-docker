@@ -1,5 +1,5 @@
 # Docker bundle to run ICS consumer chain
-> based on hero-1 consumer chain from GoC 2022
+> based on mib-orion consumer chain from GoC 2022
 
 This repository contains:
 ```bash
@@ -31,13 +31,14 @@ sudo apt install docker-compose -y
 
 # Run consumer chain
 ## Update configs before running chain
+> you can find all info needed for this chain [`here`](https://github.com/made-in-block/ics-testnets/tree/main/game-of-chains-2022/orion) 
 
 1. Edit docker-compose.yml file::
 
 ```sh
 # change this
-  - CHAIN_NAME=strange
-  - GIT_REPO=https://github.com/strangelove-ventures/strange.git
+  - CHAIN_BIN=oriond
+  - GIT_REPO=https://github.com/made-in-block/mib-consumer-chain.git
   - GIT_BRANCH=v0.1.0
 ```
 
@@ -45,16 +46,19 @@ sudo apt install docker-compose -y
 
 ```sh  
 # change this
-  CHAIN_BIN=stranged
-  CHAIN_ID=strange-1
+  CHAIN_BIN=oriond
+  CHAIN_ID=mib-orion
   PERSISTENT_PEERS=""
   GENESIS_URL=
-  DENOM=ustrange
+  DENOM=uorion
   NODE_MONIKER=node_moniker
   VALIDATOR_AMOUNT=1000000
   MNEMONIC=""
 ```
 
+3. Copy your node_key.json and priv_validator_key.json from provider chain in `chains/keys` folder
+
+&nbsp;
 
 ## Start, stop, and reset `consumer` chain
 
